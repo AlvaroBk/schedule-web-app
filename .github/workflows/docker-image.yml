@@ -72,9 +72,18 @@ jobs:
           cmd_options: '-a'
 
       # Interactive Application Security Testing (IAST) approach using OWASP ZAP in interactive mode
-      - name: Start Application for IAST
+      - name: Start Application for DAST AND IAST
         run: |
           docker-compose up -d
+      
+      - name: OWASP ZAP
+        uses: zaproxy/action-baseline@v0.4.0
+        with:
+          # Target URL
+          target: "http://localhost:8000"
+          fail_action: false
+          token: $
+          issue_title: Security Tests    
           
       - name: IAST with OWASP ZAP
         run: |
