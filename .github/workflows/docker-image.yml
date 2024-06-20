@@ -58,14 +58,22 @@ jobs:
       # Container Vulnerability Scanning with Clair
       - name: Clair Scan
         run: |
-          docker run -d --name clair-db arminc/clair-db:latest
-          docker run -d --link clair-db:postgres -p 6060:6060 arminc/clair-local-scan:v2.0.8
-          wget https://github.com/arminc/clair-scanner/releases/download/v12/clair-scanner_linux_amd64
-          chmod +x clair-scanner_linux_amd64
-          ./clair-scanner_linux_amd64 --ip $(hostname -i) alvarobk/scheduleapp:${{ env.TIMESTAMP_TAG }}
-
+          # Start Clair database
+          docker run -d --name clair-db -e POSTGRES_PASSWORD="" -e POSTGRES_DB="clair" -e POSTGRES_USER="clair" -p 5432:5432 postgres:latest
+          
+          # Wait for the database to be ready
+          sleep 10
+          
+          # Start Clair
+          docker run -d --name clair --link clair-db:postgres -p 6060:6060 quay.io/coreos/clair:latest
+          
+          # Wait for Clair to be ready
+          sleep 10
+          
+          # Perform Clair scan
+          docker run -v /var/run/docker.sock:/var/run/docker.sock --network="host" arminc/clair-scanner:latest --ip localhost alvarobk/scheduleapp:${{ env.TIMESTAMP_TAG }}
       # Dynamic Application Security Testing (DAST) with OWASP ZAP
-      - name: OWASP ZAP Scan
+      - name: OWASP ZAP Scan (DAST)
         run: |
           docker run -d -u zap -p 8080:8080 owasp/zap2docker-stable zap-baseline.py -t http://localhost:8080
           docker run -t owasp/zap2docker-stable zap-full-scan.py -t http://localhost:8080
