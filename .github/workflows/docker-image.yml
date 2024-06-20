@@ -44,7 +44,7 @@ jobs:
           format: 'table'
           vuln-type: 'os,library'
           severity: 'MEDIUM,HIGH,CRITICAL'
-          scanners: 'vuln'  # Disable secret scanning
+          scanners: 'vuln'  
 
       - name: Scan Nginx Docker image for vulnerabilities (SAST)
         uses: aquasecurity/trivy-action@master
@@ -54,7 +54,37 @@ jobs:
           format: 'table'
           vuln-type: 'os,library'
           severity: 'MEDIUM,HIGH,CRITICAL'
-          scanners: 'vuln'  # Disable secret scanning
+          scanners: 'vuln' 
+          
+      - name: Run Gitleaks (SCC)
+        id: gitleaks
+        uses: DariuszPorowski/github-action-gitleaks@v2
+        with:
+          fail: false
+
+      - name: Post PR comment
+        uses: actions/github-script@v6
+        if: ${{ steps.gitleaks.outputs.exitcode == 1 && github.event_name == 'pull_request' }}
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const { GITLEAKS_RESULT, GITLEAKS_OUTPUT } = process.env
+            const output = `### ${GITLEAKS_RESULT}
+
+            <details><summary>Log output</summary>
+
+            ${GITLEAKS_OUTPUT}
+
+            </details>
+            `
+            github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.issue.number,
+              body: output
+            })
+        env:
+          GITLEAKS_RESULT: ${{ steps.gitleaks.outputs.result }}
+          GITLEAKS_OUTPUT: ${{ steps.gitleaks.outputs.output }}     
 
       - name: Docker push images
         run: |
