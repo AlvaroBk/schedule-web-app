@@ -60,23 +60,7 @@ jobs:
           format: 'table'
           severity: 'HIGH,CRITICAL'
 
-      # Container Vulnerability Scanning with Clair
-      - name: Clair Scan
-        run: |
-          # Start Clair database (MySQL)
-          docker run -d --name clair-db -e MYSQL_ROOT_PASSWORD= -e MYSQL_DATABASE=clair -e MYSQL_USER=clair -e MYSQL_PASSWORD=clair -p 3306:3306 mysql:latest
-          
-          # Wait for the database to be ready
-          sleep 30
-          
-          # Start Clair with MySQL configuration
-          docker run -d --name clair --link clair-db:mysql -p 6060:6060 quay.io/coreos/clair:latest
-          
-          # Wait for Clair to be ready
-          sleep 30
-          
-          # Perform Clair scan
-          docker run -v /var/run/docker.sock:/var/run/docker.sock --network="host" arminc/clair-scanner:latest --ip localhost alvarobk/scheduleapp:${{ env.TIMESTAMP_TAG }}
+    
 
       # Dynamic Application Security Testing (DAST) with OWASP ZAP
       - name: OWASP ZAP Scan
