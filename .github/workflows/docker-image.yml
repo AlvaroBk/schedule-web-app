@@ -63,11 +63,13 @@ jobs:
     
 
       # Dynamic Application Security Testing (DAST) with OWASP ZAP
-      - name: OWASP ZAP Scan
-        run: |
-          docker run -d -u zap -p 8080:8080 zaproxy/zap-stable zap-baseline.py -t http://localhost:8000
-          sleep 30
-          docker run -t zaproxy/zap-stable zap-full-scan.py -t http://localhost:8000
+      - name: ZAP Scan (DAST)
+        uses: zaproxy/action-baseline@v0.6.1
+        with:
+          docker_name: 'owasp/zap2docker-stable'
+          target: 'http://testphp.vulnweb.com/'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
 
       # Interactive Application Security Testing (IAST) approach using OWASP ZAP in interactive mode
       - name: Start Application for IAST
