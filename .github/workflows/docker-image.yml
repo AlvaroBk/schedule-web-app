@@ -24,24 +24,24 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-          
+
       - name: Generate timestamp-based tag
         id: tag
         run: echo "TIMESTAMP_TAG=$(date +'%y%m%d')" >> $GITHUB_ENV
 
       - name: Build Docker image (Laravel)
         run: |
-          docker build --no-cache -t im100/scheduleapp:${{ env.TIMESTAMP_TAG }} .
+          docker build --no-cache -t iamdocker100/scheduleapp:${{ env.TIMESTAMP_TAG }} .
 
       - name: Build Docker image (Nginx)
         run: |
-          docker build --no-cache -t im100/schedulenginx:${{ env.TIMESTAMP_TAG }} ./docker/nginx
+          docker build --no-cache -t iamdocker100/schedulenginx:${{ env.TIMESTAMP_TAG }} ./docker/nginx
           
 
       - name: Scan Laravel Docker image for vulnerabilities (SCA)
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: im100/scheduleapp:${{ env.TIMESTAMP_TAG }}
+          image-ref: iamdocker100/scheduleapp:${{ env.TIMESTAMP_TAG }}
           format: 'table'
           vuln-type: 'os,library'
           severity: 'MEDIUM,HIGH,CRITICAL'
@@ -50,7 +50,7 @@ jobs:
       - name: Scan Nginx Docker image for vulnerabilities (SAST)
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: im100/schedulenginx:${{ env.TIMESTAMP_TAG }}
+          image-ref: iamdocker100/schedulenginx:${{ env.TIMESTAMP_TAG }}
           scan-type: 'fs'
           format: 'table'
           vuln-type: 'os,library'
