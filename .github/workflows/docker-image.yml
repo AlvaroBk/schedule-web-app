@@ -89,8 +89,8 @@ jobs:
 
       - name: Docker push images
         run: |
-          docker push alvarobk/scheduleapp:${{ env.TIMESTAMP_TAG }}
-          docker push alvarobk/schedulenginx:${{ env.TIMESTAMP_TAG }}
+          docker push iamdocker100/scheduleapp:${{ env.TIMESTAMP_TAG }}
+          docker push iamdocker100/schedulenginx:${{ env.TIMESTAMP_TAG }}
 
       - name: Scan JavaScript dependencies for vulnerabilities with npm audit
         run: npm audit --audit-level=high
@@ -99,7 +99,7 @@ jobs:
         run: |
          docker-compose up -d
 
-      - name: StackHawk HawkScan Action   
+      - name: StackHawk HawkScan Action (DAST)
         uses: stackhawk/hawkscan-action@v2.1.3
         with:
           apiKey: ${{ secrets.HAWK_API_KEY }}        
