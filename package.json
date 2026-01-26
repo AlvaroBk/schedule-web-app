@@ -30,7 +30,7 @@
         "@vitejs/plugin-vue": "^4.4.0",
         "@vueform/toggle": "^2.1.4",
         "@vuepic/vue-datepicker": "^7.2.2",
-        "lodash": "^4.17.21",
+        "lodash": "^4.17.23",
         "uuid": "^9.0.1"
     }
 }
